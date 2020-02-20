@@ -1,10 +1,14 @@
+#============================================================
+#指定した範囲内の歩数データを取得するプログラム
+#日付を広い範囲で選択するとtokenを失効するので小分けにして取得すること
+#============================================================
+
 #必要なライブラリーをインポート
 import fitbit
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-%matplotlib inline
 import os
 from datetime import date, timedelta
 import datetime
@@ -38,18 +42,24 @@ conn = psycopg2.connect("host=127.0.0.1 port=5432 dbname=DataRecordApp-db user=r
 cur = conn.cursor()
 
 #1日分 リクエスト回数24回/日
-#================
-#1月から取得する
-#================
+#=======================================
+#GET_YEARとGET_MONTHに取得したい年月をいれる
+#=======================================
+GET_YEAR = "2019"
+GET_MONTH = "12"
+
+#=================================================================================
+#range内の数値を変更し、取得したい日付の範囲を指定する。※リクエストが多いとtoken失効するので注意
+#=================================================================================
 for DAY in range(28, 32):
     if DAY < 10 :
-        DATE = "2019-12-0" + str(DAY)
+        DATE =  GET_YEAR + "-" + GET_MONTH + "-" + "0" + str(DAY)
               
     else :
-        DATE = "2019-12-" + str(DAY)
+        DATE = GET_YEAR + "-" + GET_MONTH + "-"  + str(DAY)
         
     #stringdateカラムにいれるデータを作成
-    string_date = "2019/12/" + str(DAY)
+    string_date = GET_YEAR + "/" + GET_MONTH + "/" + str(DAY)
     
     #時間の取得
     for TIME in range(0, 24) :
