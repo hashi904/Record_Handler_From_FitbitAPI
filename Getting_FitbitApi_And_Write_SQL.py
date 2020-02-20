@@ -41,16 +41,15 @@ authd_client = fitbit.Fitbit(
 conn = psycopg2.connect("host=127.0.0.1 port=5432 dbname=DataRecordApp-db user=root password=")
 cur = conn.cursor()
 
-#1日分 リクエスト回数24回/日
 #=======================================
 #GET_YEARとGET_MONTHに取得したい年月をいれる
 #=======================================
 GET_YEAR = "2019"
 GET_MONTH = "12"
 
-#=================================================================================
-#range内の数値を変更し、取得したい日付の範囲を指定する。※リクエストが多いとtoken失効するので注意
-#=================================================================================
+#===============================================================================================================
+#range内の数値を変更し、取得したい日付の範囲を指定する。※リクエストが多いとtoken失効するので注意 => #1日分 リクエスト回数24回/日
+#===============================================================================================================
 for DAY in range(28, 32):
     if DAY < 10 :
         DATE =  GET_YEAR + "-" + GET_MONTH + "-" + "0" + str(DAY)
@@ -65,9 +64,9 @@ for DAY in range(28, 32):
     for TIME in range(0, 24) :
         start_time = str(TIME) + ":00"
         end_time = str(TIME) + ":59"
-        #ここでAPIを実行する
+        # APIにリクエスト
         data_sec = authd_client.intraday_time_series('activities/steps', base_date=DATE, detail_level='1min', start_time = start_time, end_time = end_time )
-        #必要なデータ　をjsonから取得する
+        #必要なデータをjsonから取得
         hour_steps = data_sec['activities-steps'][0]['value']
         
         #timeカラム に入れるデータを作成
@@ -77,6 +76,6 @@ for DAY in range(28, 32):
         cur.execute("INSERT INTO fitbit_hoursteps(hour_steps, time, string_date) VALUES(%s,%s,%s)", (hour_steps, record_time_with_timezone, string_date))
         print("Now completed insert data time is " + str(TIME))
         TIME +=1
-        #sqlにコミット 
+    #sqlにコミット 
     conn.commit()
     print(DATE + "committed")
